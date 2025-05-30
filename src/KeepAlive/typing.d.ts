@@ -12,11 +12,29 @@ declare namespace RCKeepAlive {
     /** 是否激活 */
     active: boolean;
     /** 路由地址 路由名称 */
-    name: string;
+    cacheKey: string;
     /** 路由渲染位置 */
     renderDiv: RefObject<HTMLDivElement>;
-    /** 是否缓存 */
-    cache?: boolean;
+    wrapperChildrenId?: string;
+    wrapperChildrenClassName?: string;
+    /** 缓存的路由名称 | 路径 */
+    include?: Array<string | RegExp> | string | RegExp;
+    /** 排除缓存的路由名称 | 路径 */
+    exclude?: Array<string | RegExp> | string | RegExp;
+    /**
+     * 过渡切换
+     * 自定义过渡切换
+     * or
+     * window.startViewTransition
+     * or
+     * 不适用过渡切换
+     */
+    transition?: 'customer' | 'viewTransition' | false;
+    /** 过渡切换的持续时间 自定义模式下生效 */
+    duration?: number;
+
+    activeClassName?: string;
+    inactiveClassName?: string;
   } & KeepAliveRef;
 
   type KeepAliveRef = {
@@ -36,15 +54,37 @@ declare namespace RCKeepAlive {
     /** 当前活动的路由名称 | 路径 */
     activeName: string;
     /** 缓存的路由名称 | 路径 */
-    include?: Array<string>;
+    include?: Array<string | RegExp> | string | RegExp;
     /** 排除缓存的路由名称 | 路径 */
-    exclude?: Array<string>;
+    exclude?: Array<string | RegExp> | string | RegExp;
     /** 缓存最大数量 */
     maxLen?: number;
-    /** 是否缓存 */
-    cache?: boolean;
+    /**
+     * 缓存时间
+     * 没有缓存时间默认一直缓存
+     */
+    cacheTime?: number;
     /** 缓存引用 */
     aliveRef?: RefObject<KeepAliveRef>;
+    wrapperId?: string;
+    wrapperClassName?: string;
+    wrapperChildrenId?: string;
+    wrapperChildrenClassName?: string;
+    /**
+     * 过渡切换
+     * 自定义过渡切换
+     * or
+     * window.startViewTransition
+     * or
+     * 不适用过渡切换
+     */
+    transition?: 'customer' | 'viewTransition';
+    /** 过渡切换的持续时间 自定义模式下生效 */
+    duration?: number;
+    /** 自定义过渡动画时，可传入该项 默认为 active  */
+    activeClassName?: string;
+    /** 自定义过渡动画时，可传入该项 默认为 inactive */
+    inactiveClassName?: string;
   };
 
   type CacheNode = {
@@ -53,12 +93,11 @@ declare namespace RCKeepAlive {
       unknown,
       string | React.JSXElementConstructor<any>
     > | null;
-    cache: boolean;
+    lastActiveTime: number;
   };
 
   type KeepAliveProviderProps = {
     children?: ReactNode;
-    initialActiveName?: string;
     active?: boolean;
   } & KeepAliveRef;
 

@@ -1,6 +1,6 @@
 import { NavLink, useLocation, useOutlet } from 'react-router-dom';
 
-import { KeepAlive } from '../../../../src/KeepAlive';
+import { MemoizedKeepAlive } from '../../../../src/KeepAlive';
 
 const Layout = () => {
   const location = useLocation();
@@ -14,10 +14,14 @@ const Layout = () => {
       ++++++++++++++
       <NavLink to={'/layout/page2'}>page2</NavLink>
       <br />
-      <KeepAlive activeName={activeName}>
+      {/* <KeepAlive activeCacheKey={activeName}>{outlet}</KeepAlive> */}
+      <MemoizedKeepAlive
+        transition={'viewTransition'}
+        activeName={activeName}
+        include={['/layout/page1']}
+      >
         {outlet}
-        {/* <Outlet /> */}
-      </KeepAlive>
+      </MemoizedKeepAlive>
     </div>
   );
 };

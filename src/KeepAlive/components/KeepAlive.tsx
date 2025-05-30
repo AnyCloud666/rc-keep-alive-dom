@@ -11,29 +11,34 @@ import React, {
 import KeepAliveProvider from '../Provider/KeepAliveProvider';
 import { KEEP_ALIVE_CONTAINER_ID } from '../const';
 import type { RCKeepAlive } from '../typing';
-import { isNil } from '../utils';
+import { isNil, safeStartTransition } from '../utils';
 import CacheComponent from './CacheComponent';
 
 const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
   const {
     activeName,
-    cache,
     children,
     exclude,
     include,
     maxLen = 20,
     aliveRef,
+    transition,
+    duration,
+    inactiveClassName,
+    activeClassName,
+    wrapperId = KEEP_ALIVE_CONTAINER_ID,
+    wrapperClassName = KEEP_ALIVE_CONTAINER_ID,
+    wrapperChildrenClassName = KEEP_ALIVE_CONTAINER_ID,
+    wrapperChildrenId = KEEP_ALIVE_CONTAINER_ID,
   } = props;
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [cacheReactNodes, setCacheReactNodes] = useState<
-    RCKeepAlive.CacheNode[]
-  >([]);
+  const [cacheNodes, setCacheNodes] = useState<RCKeepAlive.CacheNode[]>([]);
 
   const refresh = useCallback(
     (cacheActiveName?: string) => {
-      setCacheReactNodes((cacheNodes) => {
+      setCacheNodes((cacheNodes) => {
         const name = cacheActiveName || activeName;
         return cacheNodes.map((item) => {
           if (item.name === name) {
@@ -54,7 +59,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
 
       const cacheNames = Array.isArray(names) ? names : [names];
 
-      setCacheReactNodes((cacheNodes) => {
+      setCacheNodes((cacheNodes) => {
         return cacheNodes.filter(({ name }) => !cacheNames.includes(name));
       });
     },
@@ -62,18 +67,18 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
   );
 
   const destroyAll = useCallback(() => {
-    setCacheReactNodes([]);
+    setCacheNodes([]);
   }, []);
 
   const destroyOthers = useCallback(() => {
-    setCacheReactNodes((cacheReactNodes) => {
-      return cacheReactNodes.filter(({ name }) => name === activeName);
+    setCacheNodes((cacheNodes) => {
+      return cacheNodes.filter(({ name }) => name === activeName);
     });
   }, [activeName]);
 
   const getCacheNodes = useCallback(() => {
-    return cacheReactNodes;
-  }, [cacheReactNodes]);
+    return cacheNodes;
+  }, [cacheNodes]);
 
   useImperativeHandle(
     aliveRef,
@@ -84,62 +89,74 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
       destroyOthers,
       getCacheNodes,
     }),
-    [cacheReactNodes, setCacheReactNodes, activeName],
+    [cacheNodes, setCacheNodes, activeName],
   );
 
+  /**
+   * 核心部分
+   * useOutlet,  setState , memo 配合进行dom缓存
+   *
+   * 不存在缓存节点时，新增缓存节点，并缓存dom
+   * [...preCacheNode, {... }]
+   *
+   * 存在缓存节点时，更新缓存节点，不缓存dom , 此时memo 的作用进行浅对比，引用类型没有发生改变，不做更新，
+   * {...} 结构之后，引用类型发生改变，进行更新 触发生命周期函数
+   * preCacheNode.map((item) => {})
+   *
+   *
+   */
   useLayoutEffect(() => {
     if (isNil(activeName)) {
       return;
     }
-    setCacheReactNodes((cacheReactNodes) => {
-      if (cacheReactNodes.length >= maxLen) {
-        cacheReactNodes = cacheReactNodes.slice(1, cacheReactNodes.length);
-      }
-      // remove exclude
-      if (exclude && exclude.length > 0) {
-        cacheReactNodes = cacheReactNodes.filter(
-          ({ name }) => !exclude?.includes(name),
-        );
-      }
-      // only keep include
-      if (include && include.length > 0) {
-        cacheReactNodes = cacheReactNodes.filter(({ name }) =>
-          include?.includes(name),
-        );
-      }
-      // remove cache false
-      cacheReactNodes = cacheReactNodes.filter(({ cache }) => cache);
-      const cacheReactNode = cacheReactNodes.find(
-        (res) => res.name === activeName,
-      );
-      if (isNil(cacheReactNode)) {
-        cacheReactNodes.push({
-          cache: cache ?? true,
-          name: activeName,
-          ele: children,
-        });
-      } else {
-        // important update children when activeName is same
-        // this can trigger children onActive
-        cacheReactNodes = cacheReactNodes.map((res) => {
-          return res.name === activeName ? { ...res, ele: children } : res;
-        });
-      }
-      return cacheReactNodes;
+
+    safeStartTransition(() => {
+      setCacheNodes((preCacheNode) => {
+        const lastActiveTime = Date.now();
+        const cacheNode = preCacheNode.find((item) => item.name === activeName);
+        if (cacheNode) {
+          return preCacheNode.map((item) => {
+            if (item.name === activeClassName) {
+              // 当路由中存在 useActivated 时，将会触发该生命周期
+              return {
+                ...item,
+                ele: children,
+                lastActiveTime,
+              };
+            }
+            return item;
+          });
+        } else {
+          if (preCacheNode.length > maxLen) {
+            const node = preCacheNode.reduce((pre, cur) => {
+              return pre.lastActiveTime < cur.lastActiveTime ? pre : cur;
+            });
+            preCacheNode.splice(preCacheNode.indexOf(node), 1);
+          }
+          return [
+            ...preCacheNode,
+            {
+              name: activeName,
+              ele: children,
+              lastActiveTime,
+            },
+          ];
+        }
+      });
     });
-  }, [children, cache, activeName, exclude, maxLen, include]);
+  }, [children, activeName, exclude, maxLen, include]);
 
   return (
     <Fragment>
       <div
         ref={containerRef}
-        id={KEEP_ALIVE_CONTAINER_ID}
-        className={KEEP_ALIVE_CONTAINER_ID}
+        id={wrapperId}
+        className={wrapperClassName}
+        style={{ height: '100%' }}
       ></div>
 
-      {cacheReactNodes?.map(({ name, cache, ele }) => (
+      {cacheNodes?.map(({ name, ele }) => (
         <KeepAliveProvider
-          initialActiveName={activeName}
           key={name}
           active={name === activeName}
           refresh={refresh}
@@ -151,13 +168,20 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
           <CacheComponent
             active={name === activeName}
             renderDiv={containerRef}
-            cache={cache}
-            name={name}
+            include={include}
+            exclude={exclude}
+            cacheKey={name}
             refresh={refresh}
             destroy={destroy}
             destroyAll={destroyAll}
             destroyOthers={destroyOthers}
             getCacheNodes={getCacheNodes}
+            transition={transition}
+            duration={duration}
+            inactiveClassName={inactiveClassName}
+            activeClassName={activeClassName}
+            wrapperChildrenClassName={wrapperChildrenClassName}
+            wrapperChildrenId={wrapperChildrenId}
           >
             {ele}
           </CacheComponent>
