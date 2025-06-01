@@ -20,7 +20,7 @@ function App() {
   });
 
   return (
-    <>
+    <div style={{ height: '200vh', overflow: 'auto' }}>
       <div>
         <a href="https://vite.dev" target="_blank" rel="noreferrer">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -28,7 +28,7 @@ function App() {
       </div>
       <h1>Page 1</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
+        <button onClick={() => setCount((count) => count + 1)} type="submit">
           count is {count}
         </button>
         <p>
@@ -38,7 +38,7 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-    </>
+    </div>
   );
 }
 

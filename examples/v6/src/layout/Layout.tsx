@@ -25,6 +25,10 @@ const Layout = () => {
           '/page3': 10 * 1000,
         }}
         duration={500}
+        wrapperChildrenStyle={{
+          height: '50vh',
+          overflow: 'auto',
+        }}
       >
         {outlet}
       </MemoizedKeepAlive>
