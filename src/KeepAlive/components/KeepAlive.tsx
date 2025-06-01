@@ -21,12 +21,14 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
     exclude,
     include,
     cacheMaxSize = 20,
+    cacheMaxTime,
     aliveRef,
     transition,
     duration,
-    inactiveClassName,
-    activeClassName,
-    cacheMaxTime,
+    enterFromClassName,
+    enterActiveClassName,
+    leaveToClassName,
+    leaveActiveClassName,
     wrapperId = KEEP_ALIVE_CONTAINER_ID,
     wrapperClassName = KEEP_ALIVE_CONTAINER_ID,
     wrapperChildrenClassName = KEEP_ALIVE_CONTAINER_ID,
@@ -133,7 +135,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
         );
         if (cacheNode) {
           return inLastActiveTimeCacheNodes.map((item) => {
-            if (item.name === activeClassName) {
+            if (item.name === activeName) {
               // 当路由中存在 useActivated 时，将会触发该生命周期
               return {
                 ...item,
@@ -192,7 +194,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
             renderDiv={containerRef}
             include={include}
             exclude={exclude}
-            cacheKey={name}
+            activeName={name}
             refresh={refresh}
             destroy={destroy}
             destroyAll={destroyAll}
@@ -200,10 +202,12 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
             getCacheNodes={getCacheNodes}
             transition={transition}
             duration={duration}
-            inactiveClassName={inactiveClassName}
-            activeClassName={activeClassName}
-            wrapperChildrenClassName={wrapperChildrenClassName}
+            enterFromClassName={enterFromClassName}
+            enterActiveClassName={enterActiveClassName}
+            leaveActiveClassName={leaveActiveClassName}
+            leaveToClassName={leaveToClassName}
             wrapperChildrenId={wrapperChildrenId}
+            wrapperChildrenClassName={wrapperChildrenClassName}
           >
             {ele}
           </CacheComponent>

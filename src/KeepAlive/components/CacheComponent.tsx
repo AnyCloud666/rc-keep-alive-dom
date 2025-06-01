@@ -1,10 +1,12 @@
 import React, { Fragment, memo, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  KEEP_ACTIVE_CLASS_NAME,
   KEEP_ALIVE_CONTAINER_CHILD_ID,
   KEEP_ALIVE_CONTAINER_CHILD_KEY,
-  KEEP_INACTIVE_CLASS_NAME,
+  KEEP_ENTER_ACTIVE_CLASS_NAME,
+  KEEP_ENTER_FROM_CLASS_NAME,
+  KEEP_LEAVE_ACTIVE_CLASS_NAME,
+  KEEP_LEAVE_TO_CLASS_NAME,
 } from '../const';
 import { RCKeepAlive } from '../typing';
 import { delayAsync, isInclude } from '../utils';
@@ -23,6 +25,26 @@ function removeNodes(nodes: Element[], cacheClassName: string) {
   });
 }
 
+async function renderCacheNodes(
+  container: HTMLDivElement | null,
+  node: Element,
+  enterActiveClassName: string,
+  enterFromClassName: string,
+  duration: number,
+) {
+  if (!container) return;
+  container.appendChild(node);
+  node.classList.remove(enterFromClassName, enterActiveClassName);
+  // 渲染阶段初始样式
+  node.classList.add(enterFromClassName);
+  // 增加过渡样式
+  await delayAsync(0);
+  node.classList.add(enterActiveClassName);
+  // 移除过渡样式
+  await delayAsync(duration);
+  node.classList.remove(enterFromClassName, enterActiveClassName);
+}
+
 /**
  * 转换节点列表转换为数组
  *
@@ -39,14 +61,15 @@ function getChildNodes(dom?: HTMLDivElement) {
  * @param {HTMLDivElement} container
  * @param {string} cacheActiveName
  * @param {string} activeClassName
- * @param {string} inactiveClassName
+ * @param {string} leaveActiveClassName
  * @return {*}
  */
 function switchActiveNodeToInactive(
   container: HTMLDivElement,
   cacheActiveName: string,
-  activeClassName: string,
-  inactiveClassName: string,
+  leaveActiveClassName: string,
+  leaveToClassName: string,
+  duration: number,
 ) {
   const nodes = getChildNodes(container);
 
@@ -55,24 +78,28 @@ function switchActiveNodeToInactive(
       node.getAttribute(KEEP_ALIVE_CONTAINER_CHILD_KEY) !== cacheActiveName,
   );
 
-  activeNodes.forEach((node) => {
-    node.classList.remove(activeClassName);
-    node.classList.add(inactiveClassName);
+  activeNodes?.forEach(async (node) => {
+    node?.classList.remove(leaveActiveClassName, leaveToClassName);
+    node?.classList.add(leaveActiveClassName);
+    await delayAsync(0);
+    node?.classList.add(leaveToClassName);
+    await delayAsync(duration);
+    node?.classList.remove(leaveActiveClassName, leaveToClassName);
   });
 
   return activeNodes;
 }
 
 function isCached(
-  cacheKey: string,
+  activeName: string,
   exclude?: Array<string | RegExp> | string | RegExp,
   include?: Array<string | RegExp> | string | RegExp,
 ) {
   if (include) {
-    return isInclude(include, cacheKey);
+    return isInclude(include, activeName);
   } else {
     if (exclude) {
-      return !isInclude(exclude, cacheKey);
+      return !isInclude(exclude, activeName);
     }
     return true;
   }
@@ -81,7 +108,7 @@ function isCached(
 const CacheComponent = memo(
   (props: RCKeepAlive.CacheComponentProps) => {
     const {
-      cacheKey,
+      activeName,
       active,
       renderDiv,
       children,
@@ -90,8 +117,10 @@ const CacheComponent = memo(
       destroy,
       exclude,
       include,
-      activeClassName = KEEP_ACTIVE_CLASS_NAME,
-      inactiveClassName = KEEP_INACTIVE_CLASS_NAME,
+      enterFromClassName = KEEP_ENTER_FROM_CLASS_NAME,
+      enterActiveClassName = KEEP_ENTER_ACTIVE_CLASS_NAME,
+      leaveToClassName = KEEP_LEAVE_TO_CLASS_NAME,
+      leaveActiveClassName = KEEP_LEAVE_ACTIVE_CLASS_NAME,
       wrapperChildrenId = KEEP_ALIVE_CONTAINER_CHILD_ID,
       wrapperChildrenClassName = KEEP_ALIVE_CONTAINER_CHILD_ID,
     } = props;
@@ -100,8 +129,8 @@ const CacheComponent = memo(
     const targetElement = useMemo(() => {
       const container = document.createElement('div');
       container.setAttribute('id', wrapperChildrenId);
-      container.setAttribute(KEEP_ALIVE_CONTAINER_CHILD_KEY, cacheKey);
-      container.className = `${wrapperChildrenClassName} ${cacheKey} `;
+      container.setAttribute(KEEP_ALIVE_CONTAINER_CHILD_KEY, activeName);
+      container.className = `${wrapperChildrenClassName} ${activeName} `;
       return container;
     }, []);
 
@@ -115,7 +144,7 @@ const CacheComponent = memo(
     activatedRef.current = activatedRef.current || active;
 
     useEffect(() => {
-      const cached = isCached(cacheKey, exclude, include);
+      const cached = isCached(activeName, exclude, include);
       const renderDivCurrent = renderDiv.current;
       if (!renderDivCurrent) return;
 
@@ -123,20 +152,32 @@ const CacheComponent = memo(
         const change = async (isCustomer?: boolean) => {
           const activeNodes = switchActiveNodeToInactive(
             renderDivCurrent,
-            cacheKey,
-            activeClassName,
-            inactiveClassName,
+            activeName,
+            leaveActiveClassName,
+            leaveToClassName,
+            duration,
           );
 
+          // 延迟移除节点
           if (isCustomer) {
             await delayAsync(duration - 40);
           }
-
           removeNodes(activeNodes, wrapperChildrenClassName);
           if (renderDiv.current?.contains(targetElement)) {
             return;
           }
-          renderDiv.current?.appendChild?.(targetElement);
+
+          // 延迟渲染节点
+          if (isCustomer) {
+            await delayAsync(duration - 40);
+          }
+          renderCacheNodes(
+            renderDiv.current,
+            targetElement,
+            enterActiveClassName,
+            enterFromClassName,
+            duration,
+          );
         };
         if (transition === 'viewTransition') {
           if (
@@ -154,10 +195,10 @@ const CacheComponent = memo(
         }
       } else {
         if (!cached) {
-          destroy?.(cacheKey);
+          destroy?.(activeName);
         }
       }
-    }, [active, renderDiv, cacheKey, exclude, include]);
+    }, [active, renderDiv, activeName, exclude, include]);
 
     return (
       <Fragment>
@@ -168,7 +209,7 @@ const CacheComponent = memo(
   (pre, next) => {
     // true 跳过渲染
     return (
-      pre.cacheKey === next.cacheKey &&
+      pre.activeName === next.activeName &&
       pre.active === next.active &&
       pre.children === next.children
     );

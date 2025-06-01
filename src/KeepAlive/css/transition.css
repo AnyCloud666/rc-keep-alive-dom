@@ -1,0 +1,25 @@
+/* 进入的初始状态 */
+.keep-enter-from {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+/* 进入的完成状态 */
+.keep-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.5s;
+}
+
+/* 离开的初始状态 */
+.keep-leave-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.5s;
+}
+
+/* 离开的完成状态 */
+.keep-leave-to {
+  opacity: 0;
+  transform: translateX(-50px);
+}
