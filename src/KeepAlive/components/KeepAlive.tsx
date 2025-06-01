@@ -11,7 +11,7 @@ import React, {
 import KeepAliveProvider from '../Provider/KeepAliveProvider';
 import { KEEP_ALIVE_CONTAINER_ID } from '../const';
 import type { RCKeepAlive } from '../typing';
-import { isNil, safeStartTransition } from '../utils';
+import { isNil, isNumber, isObject, safeStartTransition } from '../utils';
 import CacheComponent from './CacheComponent';
 
 const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
@@ -20,12 +20,13 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
     children,
     exclude,
     include,
-    maxLen = 20,
+    cacheMaxSize = 20,
     aliveRef,
     transition,
     duration,
     inactiveClassName,
     activeClassName,
+    cacheMaxTime,
     wrapperId = KEEP_ALIVE_CONTAINER_ID,
     wrapperClassName = KEEP_ALIVE_CONTAINER_ID,
     wrapperChildrenClassName = KEEP_ALIVE_CONTAINER_ID,
@@ -113,9 +114,25 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
     safeStartTransition(() => {
       setCacheNodes((preCacheNode) => {
         const lastActiveTime = Date.now();
-        const cacheNode = preCacheNode.find((item) => item.name === activeName);
+        // 超过最大的缓存 时间时，删除缓存节点
+        const inLastActiveTimeCacheNodes = preCacheNode?.filter((item) => {
+          if (isNumber(cacheMaxTime)) {
+            return item.lastActiveTime + (cacheMaxTime || 0) > lastActiveTime;
+          } else if (isObject(cacheMaxTime)) {
+            if (item.name in cacheMaxTime) {
+              return (
+                item.lastActiveTime + (cacheMaxTime?.[item.name] || 0) >
+                lastActiveTime
+              );
+            }
+          }
+          return true;
+        });
+        const cacheNode = inLastActiveTimeCacheNodes.find(
+          (item) => item.name === activeName,
+        );
         if (cacheNode) {
-          return preCacheNode.map((item) => {
+          return inLastActiveTimeCacheNodes.map((item) => {
             if (item.name === activeClassName) {
               // 当路由中存在 useActivated 时，将会触发该生命周期
               return {
@@ -127,14 +144,19 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
             return item;
           });
         } else {
-          if (preCacheNode.length > maxLen) {
-            const node = preCacheNode.reduce((pre, cur) => {
+          // 超过最大缓存数量时，删除最久未使用的缓存节点
+          if (inLastActiveTimeCacheNodes.length > cacheMaxSize) {
+            const node = inLastActiveTimeCacheNodes.reduce((pre, cur) => {
               return pre.lastActiveTime < cur.lastActiveTime ? pre : cur;
             });
-            preCacheNode.splice(preCacheNode.indexOf(node), 1);
+            inLastActiveTimeCacheNodes.splice(
+              inLastActiveTimeCacheNodes.indexOf(node),
+              1,
+            );
           }
+
           return [
-            ...preCacheNode,
+            ...inLastActiveTimeCacheNodes,
             {
               name: activeName,
               ele: children,
@@ -144,7 +166,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
         }
       });
     });
-  }, [children, activeName, exclude, maxLen, include]);
+  }, [children, activeName, exclude, cacheMaxSize, include]);
 
   return (
     <Fragment>

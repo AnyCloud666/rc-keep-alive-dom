@@ -64,12 +64,13 @@ declare namespace RCKeepAlive {
     /** 排除缓存的路由名称 | 路径 */
     exclude?: Array<string | RegExp> | string | RegExp;
     /** 缓存最大数量 */
-    maxLen?: number;
+    cacheMaxSize?: number;
     /**
      * 缓存时间
      * 没有缓存时间默认一直缓存
+     * 单位: ms
      */
-    cacheTime?: number;
+    cacheMaxTime?: number | Record<string, number>;
     /** 缓存引用 */
     aliveRef?: RefObject<KeepAliveRef>;
     wrapperId?: string;
@@ -85,7 +86,10 @@ declare namespace RCKeepAlive {
      * 不适用过渡切换
      */
     transition?: 'customer' | 'viewTransition';
-    /** 过渡切换的持续时间 自定义模式下生效 */
+    /**
+     * 过渡切换的持续时间 自定义模式下生效
+     * 单位: ms
+     */
     duration?: number;
     /** 自定义过渡动画时，可传入该项 默认为 active  */
     activeClassName?: string;

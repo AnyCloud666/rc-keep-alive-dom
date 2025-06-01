@@ -11,6 +11,14 @@ export function isNil(value: any): boolean {
   return value === null || value === undefined;
 }
 
+export function isNumber(value: any): value is number {
+  return typeof value === 'number';
+}
+
+export function isObject(value: any): value is object {
+  return typeof value === 'object' && value !== null;
+}
+
 export function isArray(value: any): value is any[] {
   return Array.isArray(value);
 }
