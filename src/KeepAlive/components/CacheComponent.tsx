@@ -124,6 +124,10 @@ const CacheComponent = memo(
       enterActiveClassName = KEEP_ENTER_ACTIVE_CLASS_NAME,
       leaveToClassName = KEEP_LEAVE_TO_CLASS_NAME,
       leaveActiveClassName = KEEP_LEAVE_ACTIVE_CLASS_NAME,
+      scrollTop,
+      scrollLeft,
+      recordScrollPosition,
+      onSaveScrollPosition,
     } = props;
 
     // 渲染的目标元素
@@ -183,6 +187,14 @@ const CacheComponent = memo(
             enterFromClassName,
             duration,
           );
+          if (recordScrollPosition) {
+            await delayAsync(duration - 40);
+            targetElement?.scrollTo({
+              top: scrollTop,
+              left: scrollLeft,
+              behavior: 'smooth',
+            });
+          }
         };
         if (transition === 'viewTransition') {
           if (
@@ -202,6 +214,13 @@ const CacheComponent = memo(
         if (!cached) {
           destroy?.(activeName);
         }
+        if (recordScrollPosition) {
+          onSaveScrollPosition({
+            name: activeName,
+            scrollLeft: targetElement.scrollLeft ?? 0,
+            scrollTop: targetElement.scrollTop ?? 0,
+          });
+        }
       }
     }, [active, renderDiv, activeName, exclude, include]);
 
@@ -216,7 +235,21 @@ const CacheComponent = memo(
     return (
       pre.activeName === next.activeName &&
       pre.active === next.active &&
-      pre.children === next.children
+      pre.children === next.children &&
+      pre.exclude === next.exclude &&
+      pre.include === next.include &&
+      pre.transition === next.transition &&
+      pre.duration === next.duration &&
+      pre.wrapperChildrenStyle === next.wrapperChildrenStyle &&
+      pre.wrapperChildrenId === next.wrapperChildrenId &&
+      pre.wrapperChildrenClassName === next.wrapperChildrenClassName &&
+      pre.enterFromClassName === next.enterFromClassName &&
+      pre.enterActiveClassName === next.enterActiveClassName &&
+      pre.leaveToClassName === next.leaveToClassName &&
+      pre.leaveActiveClassName === next.leaveActiveClassName &&
+      pre.scrollTop === next.scrollTop &&
+      pre.scrollLeft === next.scrollLeft &&
+      pre.onSaveScrollPosition === next.onSaveScrollPosition
     );
   },
 );

@@ -43,6 +43,8 @@ declare namespace RCKeepAlive {
     leaveActiveClassName?: string;
     /** 离开动画结束 动画类名 默认 keep-leave-to */
     leaveToClassName?: string;
+    /** 记录缓存节点的滚动位置 */
+    recordScrollPosition?: boolean;
   };
 
   type CacheComponentProps = ComponentReactElement &
@@ -51,6 +53,9 @@ declare namespace RCKeepAlive {
       active: boolean;
       /** 路由渲染位置 */
       renderDiv: RefObject<HTMLDivElement>;
+      scrollTop: number;
+      scrollLeft: number;
+      onSaveScrollPosition: (nodeInfo: RCKeepAlive.NodePosition) => void;
     } & KeepAliveRef;
 
   type KeepAliveRef = {
@@ -86,15 +91,18 @@ declare namespace RCKeepAlive {
       wrapperStyle?: CSSProperties;
     };
 
-  type CacheNode = {
+  type NodePosition = {
     name: string;
+    scrollTop: number;
+    scrollLeft: number;
+  };
+
+  type CacheNode = NodePosition & {
     ele: ReactElement<
       unknown,
       string | React.JSXElementConstructor<any>
     > | null;
     lastActiveTime: number;
-    scrollTop: number;
-    scrollLeft: number;
   };
 
   type KeepAliveProviderProps = {

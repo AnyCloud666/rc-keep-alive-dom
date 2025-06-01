@@ -35,6 +35,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
     wrapperChildrenClassName = KEEP_ALIVE_CONTAINER_ID,
     wrapperChildrenId = KEEP_ALIVE_CONTAINER_ID,
     wrapperChildrenStyle = { height: '100%' },
+    recordScrollPosition,
   } = props;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -174,6 +175,19 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
     });
   }, [children, activeName, exclude, cacheMaxSize, include]);
 
+  const onSaveScrollPosition = useCallback(
+    ({ name, scrollTop, scrollLeft }: RCKeepAlive.NodePosition) => {
+      setCacheNodes((preCacheNode) => {
+        const index = preCacheNode.findIndex((item) => item.name === name);
+        if (index === -1) return preCacheNode;
+        preCacheNode[index].scrollLeft = scrollLeft;
+        preCacheNode[index].scrollTop = scrollTop;
+        return preCacheNode;
+      });
+    },
+    [],
+  );
+
   return (
     <Fragment>
       <div
@@ -183,7 +197,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
         style={wrapperStyle}
       ></div>
 
-      {cacheNodes?.map(({ name, ele }) => (
+      {cacheNodes?.map(({ name, ele, scrollTop, scrollLeft }) => (
         <KeepAliveProvider
           key={name}
           active={name === activeName}
@@ -213,6 +227,10 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
             wrapperChildrenStyle={wrapperChildrenStyle}
             wrapperChildrenId={wrapperChildrenId}
             wrapperChildrenClassName={wrapperChildrenClassName}
+            scrollTop={scrollTop}
+            scrollLeft={scrollLeft}
+            recordScrollPosition={recordScrollPosition}
+            onSaveScrollPosition={onSaveScrollPosition}
           >
             {ele}
           </CacheComponent>
