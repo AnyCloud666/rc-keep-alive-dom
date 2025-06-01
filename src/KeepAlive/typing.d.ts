@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode, RefObject } from 'react';
+import { CSSProperties, ReactElement, ReactNode, RefObject } from 'react';
 
 declare namespace RCKeepAlive {
   type ComponentReactElement = {
@@ -18,6 +18,8 @@ declare namespace RCKeepAlive {
     wrapperChildrenId?: string;
     /** 子节点类名 */
     wrapperChildrenClassName?: string;
+    /** 子节点样式 */
+    wrapperChildrenStyle?: CSSProperties;
     /**
      * 过渡切换
      * 自定义过渡切换
@@ -80,6 +82,8 @@ declare namespace RCKeepAlive {
       wrapperId?: string;
       /** 渲染容器节点类名 */
       wrapperClassName?: string;
+      /** 渲染容器节点样式 */
+      wrapperStyle?: CSSProperties;
     };
 
   type CacheNode = {
@@ -89,6 +93,8 @@ declare namespace RCKeepAlive {
       string | React.JSXElementConstructor<any>
     > | null;
     lastActiveTime: number;
+    scrollTop: number;
+    scrollLeft: number;
   };
 
   type KeepAliveProviderProps = {
@@ -122,4 +128,6 @@ declare namespace RCKeepAlive {
   type KeepAliveManageProviderProps = {
     children?: ReactNode | ReactNode[];
   };
+
+  type StyleKeys = Exclude<keyof CSSStyleDeclaration, 'length' | 'parentRule'>;
 }

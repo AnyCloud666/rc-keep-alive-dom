@@ -117,12 +117,13 @@ const CacheComponent = memo(
       destroy,
       exclude,
       include,
+      wrapperChildrenStyle = { height: '100%' },
+      wrapperChildrenId = KEEP_ALIVE_CONTAINER_CHILD_ID,
+      wrapperChildrenClassName = KEEP_ALIVE_CONTAINER_CHILD_ID,
       enterFromClassName = KEEP_ENTER_FROM_CLASS_NAME,
       enterActiveClassName = KEEP_ENTER_ACTIVE_CLASS_NAME,
       leaveToClassName = KEEP_LEAVE_TO_CLASS_NAME,
       leaveActiveClassName = KEEP_LEAVE_ACTIVE_CLASS_NAME,
-      wrapperChildrenId = KEEP_ALIVE_CONTAINER_CHILD_ID,
-      wrapperChildrenClassName = KEEP_ALIVE_CONTAINER_CHILD_ID,
     } = props;
 
     // 渲染的目标元素
@@ -130,7 +131,11 @@ const CacheComponent = memo(
       const container = document.createElement('div');
       container.setAttribute('id', wrapperChildrenId);
       container.setAttribute(KEEP_ALIVE_CONTAINER_CHILD_KEY, activeName);
-      container.className = `${wrapperChildrenClassName} ${activeName} `;
+      container.className = `${wrapperChildrenClassName} ${activeName}`;
+      // 遍历样式对象并应用样式
+      for (const [key, value] of Object.entries(wrapperChildrenStyle)) {
+        container.style[key as RCKeepAlive.StyleKeys] = value;
+      }
       return container;
     }, []);
 

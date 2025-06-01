@@ -31,8 +31,10 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
     leaveActiveClassName,
     wrapperId = KEEP_ALIVE_CONTAINER_ID,
     wrapperClassName = KEEP_ALIVE_CONTAINER_ID,
+    wrapperStyle = { height: '100%' },
     wrapperChildrenClassName = KEEP_ALIVE_CONTAINER_ID,
     wrapperChildrenId = KEEP_ALIVE_CONTAINER_ID,
+    wrapperChildrenStyle = { height: '100%' },
   } = props;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -160,6 +162,8 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
           return [
             ...inLastActiveTimeCacheNodes,
             {
+              scrollLeft: 0,
+              scrollTop: 0,
               name: activeName,
               ele: children,
               lastActiveTime,
@@ -176,7 +180,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
         ref={containerRef}
         id={wrapperId}
         className={wrapperClassName}
-        style={{ height: '100%' }}
+        style={wrapperStyle}
       ></div>
 
       {cacheNodes?.map(({ name, ele }) => (
@@ -206,6 +210,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
             enterActiveClassName={enterActiveClassName}
             leaveActiveClassName={leaveActiveClassName}
             leaveToClassName={leaveToClassName}
+            wrapperChildrenStyle={wrapperChildrenStyle}
             wrapperChildrenId={wrapperChildrenId}
             wrapperChildrenClassName={wrapperChildrenClassName}
           >
