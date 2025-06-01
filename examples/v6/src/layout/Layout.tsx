@@ -29,6 +29,7 @@ const Layout = () => {
           height: '50vh',
           overflow: 'auto',
         }}
+        recordScrollPosition={true}
       >
         {outlet}
       </MemoizedKeepAlive>
