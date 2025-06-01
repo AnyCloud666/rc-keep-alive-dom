@@ -116,8 +116,6 @@ const CacheComponent = memo(
 
     useEffect(() => {
       const cached = isCached(cacheKey, exclude, include);
-      console.log('include: ', include);
-      console.log('cached: ', cached, cacheKey);
       const renderDivCurrent = renderDiv.current;
       if (!renderDivCurrent) return;
 
@@ -141,7 +139,14 @@ const CacheComponent = memo(
           renderDiv.current?.appendChild?.(targetElement);
         };
         if (transition === 'viewTransition') {
-          document.startViewTransition(change);
+          if (
+            document.startViewTransition &&
+            typeof document.startViewTransition === 'function'
+          ) {
+            document.startViewTransition(change);
+          } else {
+            change();
+          }
         } else if (transition === 'customer') {
           change(true);
         } else {

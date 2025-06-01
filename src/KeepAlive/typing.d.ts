@@ -28,6 +28,12 @@ declare namespace RCKeepAlive {
      * window.startViewTransition
      * or
      * 不适用过渡切换
+     *
+     * viewTransition
+     *
+     * @see https://developer.mozilla.org/zh-CN/docs/Web/API/Document/startViewTransition
+     * @see https://caniuse.com/?search=startViewTransition
+     *
      */
     transition?: 'customer' | 'viewTransition' | false;
     /** 过渡切换的持续时间 自定义模式下生效 */
