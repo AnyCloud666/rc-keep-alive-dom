@@ -18,12 +18,13 @@ const Layout = () => {
       <br />
       {/* <KeepAlive activeCacheKey={activeName}>{outlet}</KeepAlive> */}
       <MemoizedKeepAlive
-        transition={'viewTransition'}
+        transition={'customer'}
         activeName={activeName}
         // include={['/layout/page1']}
-        cacheTime={{
+        cacheMaxTime={{
           '/page3': 10 * 1000,
         }}
+        duration={500}
       >
         {outlet}
       </MemoizedKeepAlive>
