@@ -10,15 +10,20 @@ const Layout = () => {
 
   return (
     <div>
-      <NavLink to={'/layout/page1'}>page1</NavLink>
+      <NavLink to={'/page1'}>page1</NavLink>
       ++++++++++++++
-      <NavLink to={'/layout/page2'}>page2</NavLink>
+      <NavLink to={'/page2'}>page2</NavLink>
+      ++++++++++++++
+      <NavLink to={'/page3'}>page3</NavLink>
       <br />
       {/* <KeepAlive activeCacheKey={activeName}>{outlet}</KeepAlive> */}
       <MemoizedKeepAlive
         transition={'viewTransition'}
         activeName={activeName}
-        include={['/layout/page1']}
+        // include={['/layout/page1']}
+        cacheTime={{
+          '/page3': 10 * 1000,
+        }}
       >
         {outlet}
       </MemoizedKeepAlive>
