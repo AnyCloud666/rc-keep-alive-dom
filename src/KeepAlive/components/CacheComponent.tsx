@@ -38,7 +38,7 @@ async function renderCacheNodes(
   // 渲染阶段初始样式
   node.classList.add(enterFromClassName);
   // 增加过渡样式
-  await delayAsync(0);
+  await delayAsync(16);
   node.classList.add(enterActiveClassName);
   // 移除过渡样式
   await delayAsync(duration);
@@ -81,7 +81,7 @@ function switchActiveNodeToInactive(
   activeNodes?.forEach(async (node) => {
     node?.classList.remove(leaveActiveClassName, leaveToClassName);
     node?.classList.add(leaveActiveClassName);
-    await delayAsync(0);
+    await delayAsync(16);
     node?.classList.add(leaveToClassName);
     await delayAsync(duration);
     node?.classList.remove(leaveActiveClassName, leaveToClassName);
