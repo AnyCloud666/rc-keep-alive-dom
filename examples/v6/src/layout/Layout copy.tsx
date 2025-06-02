@@ -1,8 +1,13 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useOutlet } from 'react-router-dom';
 
-import { KeepAliveOutlet } from '../../../../src/KeepAlive';
+import { MemoizedKeepAlive } from '../../../../src/KeepAlive';
 
 const Layout = () => {
+  const location = useLocation();
+  const activeName = location.pathname + location.search;
+
+  const outlet = useOutlet();
+
   return (
     <div>
       <NavLink to={'/page1'}>page1</NavLink>
@@ -11,8 +16,10 @@ const Layout = () => {
       ++++++++++++++
       <NavLink to={'/page3'}>page3</NavLink>
       <br />
-      <KeepAliveOutlet
+      <MemoizedKeepAlive
         transition={'customer'}
+        activeName={activeName}
+        // include={['/layout/page1']}
         cacheMaxTime={{
           '/page3': 10 * 1000,
         }}
@@ -22,7 +29,9 @@ const Layout = () => {
           overflow: 'auto',
         }}
         recordScrollPosition={true}
-      />
+      >
+        {outlet}
+      </MemoizedKeepAlive>
     </div>
   );
 };
