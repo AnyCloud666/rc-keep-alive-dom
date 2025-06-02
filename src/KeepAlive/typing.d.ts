@@ -138,4 +138,6 @@ declare namespace RCKeepAlive {
   };
 
   type StyleKeys = Exclude<keyof CSSStyleDeclaration, 'length' | 'parentRule'>;
+
+  type KeepAliveOutletProps = Omit<KeepAliveProps, 'children' | 'activeName'>;
 }
