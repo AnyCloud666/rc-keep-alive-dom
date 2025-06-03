@@ -56,6 +56,8 @@ declare namespace RCKeepAlive {
       renderDiv: RefObject<HTMLDivElement>;
       scrollTop: number;
       scrollLeft: number;
+      /** transition 过渡首次是否延迟删除dom */
+      isDelay?: boolean;
       onSaveScrollPosition: (nodeInfo: RCKeepAlive.NodePosition) => void;
     } & KeepAliveRef;
 

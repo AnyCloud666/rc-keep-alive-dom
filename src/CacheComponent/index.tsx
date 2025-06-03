@@ -31,9 +31,14 @@ async function renderCacheNodes(
   enterActiveClassName: string,
   enterFromClassName: string,
   duration: number,
+  isCustomer?: boolean,
+  isDelay?: boolean,
 ) {
   if (!container) return;
   container.appendChild(node);
+
+  if (!isCustomer || !isDelay) return;
+
   node.classList.remove(enterFromClassName, enterActiveClassName);
   // 渲染阶段初始样式
   node.classList.add(enterFromClassName);
@@ -70,6 +75,7 @@ function switchActiveNodeToInactive(
   leaveActiveClassName: string,
   leaveToClassName: string,
   duration: number,
+  isCustomer?: boolean,
 ) {
   const nodes = getChildNodes(container);
 
@@ -78,14 +84,16 @@ function switchActiveNodeToInactive(
       node.getAttribute(KEEP_ALIVE_CONTAINER_CHILD_KEY) !== cacheActiveName,
   );
 
-  activeNodes?.forEach(async (node) => {
-    node?.classList.remove(leaveActiveClassName, leaveToClassName);
-    node?.classList.add(leaveActiveClassName);
-    await delayAsync(16);
-    node?.classList.add(leaveToClassName);
-    await delayAsync(duration);
-    node?.classList.remove(leaveActiveClassName, leaveToClassName);
-  });
+  if (isCustomer) {
+    activeNodes?.forEach(async (node) => {
+      node?.classList.remove(leaveActiveClassName, leaveToClassName);
+      node?.classList.add(leaveActiveClassName);
+      await delayAsync(16);
+      node?.classList.add(leaveToClassName);
+      await delayAsync(duration);
+      node?.classList.remove(leaveActiveClassName, leaveToClassName);
+    });
+  }
 
   return activeNodes;
 }
@@ -128,6 +136,7 @@ const CacheComponent = memo(
       scrollLeft,
       recordScrollPosition,
       onSaveScrollPosition,
+      isDelay,
     } = props;
 
     // 渲染的目标元素
@@ -158,27 +167,22 @@ const CacheComponent = memo(
       if (!renderDivCurrent) return;
 
       if (active) {
-        const change = async (isCustomer?: boolean) => {
+        const change = async (isCustomer?: boolean, isDelay?: boolean) => {
           const activeNodes = switchActiveNodeToInactive(
             renderDivCurrent,
             activeName,
             leaveActiveClassName,
             leaveToClassName,
             duration,
+            isCustomer,
           );
-
           // 延迟移除节点
-          if (isCustomer) {
+          if (isCustomer && isDelay) {
             await delayAsync(duration - 40);
           }
           removeNodes(activeNodes, wrapperChildrenClassName);
           if (renderDiv.current?.contains(targetElement)) {
             return;
-          }
-
-          // 延迟渲染节点
-          if (isCustomer) {
-            await delayAsync(duration - 40);
           }
           renderCacheNodes(
             renderDiv.current,
@@ -186,6 +190,8 @@ const CacheComponent = memo(
             enterActiveClassName,
             enterFromClassName,
             duration,
+            isCustomer,
+            isDelay,
           );
           if (recordScrollPosition) {
             await delayAsync(duration - 40);
@@ -206,15 +212,18 @@ const CacheComponent = memo(
             change();
           }
         } else if (transition === 'customer') {
-          change(true);
+          change(true, isDelay);
         } else {
+          console.log('no transition');
           change();
         }
       } else {
         if (!cached) {
+          console.log('cached: ', cached);
+          // await delayAsync(duration - 40);
           destroy?.(activeName);
         }
-        if (recordScrollPosition) {
+        if (cached && recordScrollPosition) {
           onSaveScrollPosition({
             name: activeName,
             scrollLeft: targetElement.scrollLeft ?? 0,

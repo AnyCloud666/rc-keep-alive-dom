@@ -3,6 +3,7 @@ import React, {
   Fragment,
   memo,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
@@ -43,7 +44,18 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const isDelay = useRef(false);
+
   const [cacheNodes, setCacheNodes] = useState<RCKeepAlive.CacheNode[]>([]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      // 如果是自定义过渡，第一次渲染将不延迟删除dom
+      if (transition === 'customer') {
+        isDelay.current = true;
+      }
+    });
+  }, []);
 
   const refresh = useCallback(
     (cacheActiveName?: string) => {
@@ -234,6 +246,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
             scrollLeft={scrollLeft}
             recordScrollPosition={recordScrollPosition}
             onSaveScrollPosition={onSaveScrollPosition}
+            isDelay={isDelay.current}
           >
             {ele}
           </CacheComponent>
