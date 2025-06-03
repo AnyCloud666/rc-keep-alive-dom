@@ -65,6 +65,7 @@ export default Layout;
 | wrapperChildrenClassName | 包裹子元素的 className    | string                                      | keep-alive-container-child |
 | wrapperChildrenStyle     | 包裹子元素的 style        | React.CSSProperties                         | { height: '100%' }         |
 | transition               | 过渡切换                  | customer \| viteTransition \| undefined     | undefined                  |
+| disableTransitions       | 过渡动画的路由或组件      | Array<string \| RegExp> \| string \| RegExp | -                          |
 | duration                 | 过渡切换持续时间          | number                                      | 300                        |
 | enterFromClassName       | 进入初始状态 动画类名     | string                                      | keep-enter-from            |
 | enterActiveClassName     | 进入动画状态 动画类名     | string                                      | keep-enter-active          |

@@ -46,6 +46,13 @@ declare namespace RCKeepAlive {
     leaveToClassName?: string;
     /** 记录缓存节点的滚动位置 */
     recordScrollPosition?: boolean;
+    /**
+     * 禁止使用过渡动画的 activeName
+     * \<Outlet \/\> 所在的组件禁止触发过渡动画
+     * 原因，初始渲染重定向时无法判断动画执行完成时间
+     * 为什么不用 exclude 进行排除，exclude 作用只是排除不缓存的路由或组件
+     */
+    disableTransitions?: Array<string | RegExp> | string | RegExp;
   };
 
   type CacheComponentProps = ComponentReactElement &
@@ -56,8 +63,6 @@ declare namespace RCKeepAlive {
       renderDiv: RefObject<HTMLDivElement>;
       scrollTop: number;
       scrollLeft: number;
-      /** transition 过渡首次是否延迟删除dom */
-      isDelay?: boolean;
       onSaveScrollPosition: (nodeInfo: RCKeepAlive.NodePosition) => void;
     } & KeepAliveRef;
 

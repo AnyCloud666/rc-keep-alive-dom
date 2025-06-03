@@ -32,12 +32,11 @@ async function renderCacheNodes(
   enterFromClassName: string,
   duration: number,
   isCustomer?: boolean,
-  isDelay?: boolean,
 ) {
   if (!container) return;
   container.appendChild(node);
 
-  if (!isCustomer || !isDelay) return;
+  if (!isCustomer) return;
 
   node.classList.remove(enterFromClassName, enterActiveClassName);
   // 渲染阶段初始样式
@@ -113,6 +112,16 @@ function isCached(
   }
 }
 
+function isDisabledTransition(
+  activeName: string,
+  disabledTransition?: Array<string | RegExp> | string | RegExp,
+) {
+  if (disabledTransition) {
+    return isInclude(disabledTransition, activeName);
+  }
+  return true;
+}
+
 const CacheComponent = memo(
   (props: RCKeepAlive.CacheComponentProps) => {
     const {
@@ -136,7 +145,7 @@ const CacheComponent = memo(
       scrollLeft,
       recordScrollPosition,
       onSaveScrollPosition,
-      isDelay,
+      disableTransitions,
     } = props;
 
     // 渲染的目标元素
@@ -163,11 +172,12 @@ const CacheComponent = memo(
 
     useEffect(() => {
       const cached = isCached(activeName, exclude, include);
+      const disabled = isDisabledTransition(activeName, disableTransitions);
       const renderDivCurrent = renderDiv.current;
       if (!renderDivCurrent) return;
 
       if (active) {
-        const change = async (isCustomer?: boolean, isDelay?: boolean) => {
+        const change = async (isCustomer?: boolean) => {
           const activeNodes = switchActiveNodeToInactive(
             renderDivCurrent,
             activeName,
@@ -177,12 +187,15 @@ const CacheComponent = memo(
             isCustomer,
           );
           // 延迟移除节点
-          if (isCustomer && isDelay) {
+          if (isCustomer && !disabled) {
             await delayAsync(duration - 40);
           }
           removeNodes(activeNodes, wrapperChildrenClassName);
           if (renderDiv.current?.contains(targetElement)) {
             return;
+          }
+          if (isCustomer && !disabled) {
+            await delayAsync(16);
           }
           renderCacheNodes(
             renderDiv.current,
@@ -191,7 +204,6 @@ const CacheComponent = memo(
             enterFromClassName,
             duration,
             isCustomer,
-            isDelay,
           );
           if (recordScrollPosition) {
             await delayAsync(duration - 40);
@@ -212,15 +224,13 @@ const CacheComponent = memo(
             change();
           }
         } else if (transition === 'customer') {
-          change(true, isDelay);
+          change(true);
         } else {
           console.log('no transition');
           change();
         }
       } else {
-        if (!cached) {
-          console.log('cached: ', cached);
-          // await delayAsync(duration - 40);
+        if (!cached || disabled) {
           destroy?.(activeName);
         }
         if (cached && recordScrollPosition) {
