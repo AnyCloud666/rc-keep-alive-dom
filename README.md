@@ -51,6 +51,12 @@ const Layout = () => {
 export default Layout;
 ```
 
+## Document
+
+[see me](https://anycloud666.github.io/rc-keep-alive-dom)
+[see me](https://anycloud666.github.io/rc-keep-alive-dom)
+[see me](https://anycloud666.github.io/rc-keep-alive-dom)
+
 ## Development
 
 ```bash
