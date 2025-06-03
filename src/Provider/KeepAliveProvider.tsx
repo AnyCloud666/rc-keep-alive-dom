@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { KeepAliveContext } from '../Context/KeepAliveContext';
+import { KeepAliveContext } from '../hooks/useKeepAliveContext';
 import { RCKeepAlive } from '../typing';
 
 const KeepAliveProvider = memo((props: RCKeepAlive.KeepAliveProviderProps) => {

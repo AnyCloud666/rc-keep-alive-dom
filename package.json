@@ -1,7 +1,11 @@
 {
-  "name": "rc-keep-alive",
+  "name": "rc-keep-alive-dom",
   "version": "0.0.1",
   "description": "cache react router",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AnyCloud666/rc-keep-alive-dom.git"
+  },
   "license": "MIT",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",

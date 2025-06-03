@@ -9,16 +9,17 @@ declare namespace RCKeepAlive {
   };
 
   type CacheComponentBase = {
+    /** 当前活动的路由名称 */
     activeName: string;
     /** 缓存的路由名称 | 路径 */
     include?: Array<string | RegExp> | string | RegExp;
     /** 排除缓存的路由名称 | 路径 */
     exclude?: Array<string | RegExp> | string | RegExp;
-    /** 子节点id */
+    /** 子节点id 默认 keep-alive-container-child */
     wrapperChildrenId?: string;
-    /** 子节点类名 */
+    /** 子节点类名 默认 keep-alive-container-child */
     wrapperChildrenClassName?: string;
-    /** 子节点样式 */
+    /** 子节点样式 默认 { height: '100%' } */
     wrapperChildrenStyle?: CSSProperties;
     /**
      * 过渡切换

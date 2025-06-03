@@ -1,6 +1,6 @@
 import { NavLink, useLocation, useOutlet } from 'react-router-dom';
 
-import { MemoizedKeepAlive } from '../../../../src/KeepAlive';
+import { MemoizedKeepAlive } from '../../../../src';
 
 const Layout = () => {
   const location = useLocation();

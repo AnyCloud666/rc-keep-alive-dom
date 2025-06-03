@@ -1,8 +1,8 @@
 import { useMemoizedFn, useSessionStorageState } from 'ahooks';
 import React, { memo, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { KeepAliveManageContext } from '../Context/KeepAliveManageContext';
 import { KEEP_PAGE_STORAGE_KEY } from '../const';
+import { KeepAliveManageContext } from '../hooks/useKeepAliveManageContext';
 import { RCKeepAlive } from '../typing';
 
 /**

@@ -1,7 +1,7 @@
 import React, { memo, Suspense, useMemo } from 'react';
 import { useLocation, useOutlet } from 'react-router-dom';
+import KeepAlive from '../KeepAlive';
 import { RCKeepAlive } from '../typing';
-import KeepAlive from './KeepAlive';
 
 const KeepAliveOutlet = memo((props: RCKeepAlive.KeepAliveOutletProps) => {
   const outlet = useOutlet();

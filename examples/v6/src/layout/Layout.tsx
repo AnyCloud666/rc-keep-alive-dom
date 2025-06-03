@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
-import { KeepAliveOutlet } from '../../../../src/KeepAlive';
+import { KeepAliveOutlet } from '../../../../src';
 
 const Layout = () => {
   return (

@@ -1,10 +1,9 @@
-# rc-keep-alive-dom
+# 快速开始
 
-cache react router
-
-## Usage
+## 安装
 
 ```bash
+
 # use pnpm to install
 pnpm add rc-keep-alive-dom
 
@@ -16,9 +15,9 @@ yarn add rc-keep-alive-dom
 
 ```
 
-## Example
+## 使用
 
-```tsx
+```js
 import { NavLink } from 'react-router-dom';
 
 import { KeepAliveOutlet } from 'rc-keep-alive-dom';
@@ -50,32 +49,3 @@ const Layout = () => {
 
 export default Layout;
 ```
-
-## Development
-
-```bash
-# install dependencies
-$ pnpm install
-
-# develop library by docs demo
-$ pnpm start
-
-# build library source code
-$ pnpm run build
-
-# build library source code in watch mode
-$ pnpm run build:watch
-
-# build docs
-$ pnpm run docs:build
-
-# Locally preview the production build.
-$ pnpm run docs:preview
-
-# check your project for potential problems
-$ pnpm run doctor
-```
-
-## LICENSE
-
-MIT

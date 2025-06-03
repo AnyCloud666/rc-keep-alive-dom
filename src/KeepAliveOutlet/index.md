@@ -8,42 +8,48 @@ nav:
   title: 组件
   order: 1
   second:
-    title: 组件缓存
-    order: 2
+    title: 路由缓存
+    order: 1
 ---
 
-# 组件缓存
+# 路由缓存
 
 ```js
-import { KeepAlive } from 'rc-keep-alive-dom';
-import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
-const Tabs = () => {
-  const [activeKey, setActiveKey] = useState('tab1');
+import { KeepAliveOutlet } from 'rc-keep-alive-dom';
 
+const Layout = () => {
   return (
     <div>
-      <button onClick={() => setActiveKey('tab1')}>tab1</button>
-      <button onClick={() => setActiveKey('tab2')}>tab2</button>
-      <button onClick={() => setActiveKey('tab3')}>tab3</button>
-      <KeepAlive activeName={activeKey}>
-        {activeKey === 'tab1' && <div>tab1 content</div>}
-        {activeKey === 'tab2' && <div>tab2 content</div>}
-        {activeKey === 'tab3' && <div>tab3 content</div>}
-      </KeepAlive>
+      <NavLink to={'/page1'}>page1</NavLink>
+      ++++++++++++++
+      <NavLink to={'/page2'}>page2</NavLink>
+      ++++++++++++++
+      <NavLink to={'/page3'}>page3</NavLink>
+      <br />
+      <KeepAliveOutlet
+        transition={'customer'}
+        cacheMaxTime={{
+          '/page3': 10 * 1000,
+        }}
+        duration={500}
+        wrapperChildrenStyle={{
+          height: '50vh',
+          overflow: 'auto',
+        }}
+        recordScrollPosition={true}
+      />
     </div>
   );
 };
-
-return Tabs;
+export default Layout;
 ```
 
 ## 属性
 
 | 属性                     | 说明                      | 类型                                        | 默认值                     |
 | ------------------------ | ------------------------- | ------------------------------------------- | -------------------------- |
-| activeName               | 当前活动的路由名称        | string                                      | -                          |
-| children                 | 子元素                    | ReactElement \| null                        | -                          |
 | cacheMaxSize             | 缓存最大个数              | number                                      | 20                         |
 | cacheMaxTime             | 缓存最大时间,默认全部缓存 | number \| Record<string,number>             | undefined                  |
 | include                  | 缓存的路由名称            | Array<string \| RegExp> \| string \| RegExp | -                          |
