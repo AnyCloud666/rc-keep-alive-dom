@@ -46,6 +46,10 @@ const Layout = () => {
 export default Layout;
 ```
 
+### 示例
+
+[查看示例](https://codesandbox.io/p/sandbox/7gqc3m?file=%2Fsrc%2Flayout%2FLayout.tsx%3A23%2C11)
+
 ## 属性
 
 | 属性                     | 说明                      | 类型                                        | 默认值                     |
