@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import viteLogo from '/vite.svg';
 
-import { useActivated, useUnActivated } from '../../../../src';
+import { useActivated, useUnActivated } from 'rc-keep-alive-dom';
 // import './App.css'
 
 function App() {
