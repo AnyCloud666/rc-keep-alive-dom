@@ -43,6 +43,7 @@ const Layout = () => {
           overflow: 'auto',
         }}
         recordScrollPosition={true}
+        disableTransitions={['/']}
       />
     </div>
   );
