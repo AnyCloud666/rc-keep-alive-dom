@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import viteLogo from '/vite.svg';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import { useActivated, useUnActivated } from 'rc-keep-alive-dom';
+import Chart from '../components/chart';
 // import './App.css'
 
 function App() {
@@ -19,25 +19,41 @@ function App() {
     console.log('unactivated');
   });
 
+  const option = useMemo<echarts.EChartsOption>(() => {
+    return {
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [
+        {
+          data: [150, 230, 224, 218, 135, 147, 260],
+          type: 'line',
+        },
+      ],
+    };
+  }, []);
+
   return (
     <div style={{ height: '200vh', overflow: 'auto' }}>
-      <div>
-        <a href="https://vite.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-      </div>
       <h1>Page 1</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)} type="submit">
           count is {count}
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+
+      <Suspense>
+        <div style={{ width: 500, height: 300, border: '1px solid #ccc' }}>
+          <Chart
+            option={option}
+            // style={{ width: 'fit-content', height: 'fit-content' }}
+          />
+        </div>
+      </Suspense>
     </div>
   );
 }
