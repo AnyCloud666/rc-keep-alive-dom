@@ -52,10 +52,14 @@ const Layout = () => {
 export default Layout;
 ```
 
+[demo](https://codesandbox.io/p/sandbox/7gqc3m?file=%2Fsrc%2Flayout%2FLayout.tsx)
+
 ## Document
 
 [see me](https://anycloud666.github.io/rc-keep-alive-dom)
+
 [see me](https://anycloud666.github.io/rc-keep-alive-dom)
+
 [see me](https://anycloud666.github.io/rc-keep-alive-dom)
 
 ## Development

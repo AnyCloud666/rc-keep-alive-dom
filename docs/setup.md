@@ -49,3 +49,5 @@ const Layout = () => {
 
 export default Layout;
 ```
+
+[demo](https://codesandbox.io/p/sandbox/7gqc3m?file=%2Fsrc%2Flayout%2FLayout.tsx)
