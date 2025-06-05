@@ -53,7 +53,7 @@ function Page() {
 }
 ```
 
-返回值
+返回值 ctx 包含以下属性：
 
 | 属性          | 说明                     | 类型                              | 默认值 |
 | ------------- | ------------------------ | --------------------------------- | ------ |
@@ -63,3 +63,19 @@ function Page() {
 | destroyAll    | 销毁所有缓存             | () => void                        | -      |
 | destroyOthers | 销毁除当前之外的所有缓存 | (cacheActiveName?:string) => void | -      |
 | getCacheNodes | 获取缓存节点             | () => React.ReactNode[]           | -      |
+
+## useTransition
+
+当使用 transition='customer' 进行过渡时，将会触发该生命周期
+
+```js
+import { useTransition } from 'rc-keep-alive-dom';
+
+function Page() {
+  useTransition((t) => {
+    console.log('t'); //  { name: string, type: 'start' | 'end', time: number }
+  });
+
+  return <div>page1</div>;
+}
+```

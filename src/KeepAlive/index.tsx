@@ -46,6 +46,9 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
 
   const [cacheNodes, setCacheNodes] = useState<RCKeepAlive.CacheNode[]>([]);
 
+  const [transitionActive, setTransitionActive] =
+    useState<RCKeepAlive.TransitionActive>();
+
   const refresh = useCallback(
     (cacheActiveName?: string) => {
       setCacheNodes((cacheNodes) => {
@@ -192,6 +195,10 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
     [],
   );
 
+  const onTransition = useCallback((t: RCKeepAlive.TransitionActive) => {
+    setTransitionActive(t);
+  }, []);
+
   return (
     <Fragment>
       <div
@@ -205,6 +212,8 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
         <KeepAliveProvider
           key={name}
           active={name === activeName}
+          transition={transition}
+          transitionActive={transitionActive}
           refresh={refresh}
           destroy={destroy}
           destroyAll={destroyAll}
@@ -236,6 +245,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
             recordScrollPosition={recordScrollPosition}
             onSaveScrollPosition={onSaveScrollPosition}
             disableTransitions={disableTransitions}
+            onTransition={onTransition}
           >
             {ele}
           </CacheComponent>

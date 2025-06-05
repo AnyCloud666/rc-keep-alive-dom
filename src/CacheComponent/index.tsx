@@ -146,6 +146,7 @@ const CacheComponent = memo(
       recordScrollPosition,
       onSaveScrollPosition,
       disableTransitions,
+      onTransition,
     } = props;
 
     // 渲染的目标元素
@@ -178,6 +179,13 @@ const CacheComponent = memo(
 
       if (active) {
         const change = async (isCustomer?: boolean) => {
+          if (isCustomer) {
+            onTransition?.({
+              name: activeName,
+              type: 'start',
+              time: Date.now(),
+            });
+          }
           const activeNodes = switchActiveNodeToInactive(
             renderDivCurrent,
             activeName,
@@ -205,6 +213,13 @@ const CacheComponent = memo(
             duration,
             isCustomer,
           );
+          if (isCustomer) {
+            onTransition?.({
+              name: activeName,
+              type: 'end',
+              time: Date.now(),
+            });
+          }
           if (recordScrollPosition) {
             await delayAsync(duration - 40);
             targetElement?.scrollTo({

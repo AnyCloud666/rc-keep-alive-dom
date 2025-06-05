@@ -71,7 +71,6 @@
     "stylelint": "^14.9.1"
   },
   "peerDependencies": {
-    "ahooks": "^3.8.5",
     "react": ">=16.9.0",
     "react-dom": ">=16.9.0",
     "react-router-dom": ">=6.15.0"

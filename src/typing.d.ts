@@ -55,15 +55,31 @@ declare namespace RCKeepAlive {
     disableTransitions?: Array<string | RegExp> | string | RegExp;
   };
 
+  type TransitionActive = {
+    /** 当前执行过渡的 路由 | 组件名称 */
+    name: string;
+    /** 过渡类型 start | end */
+    type: 'start' | 'end';
+    /**
+     * 过渡开始时间
+     * 单位: ms
+     */
+    time: number;
+  };
+
   type CacheComponentProps = ComponentReactElement &
     CacheComponentBase & {
       /** 是否激活 */
       active: boolean;
       /** 路由渲染位置 */
       renderDiv: RefObject<HTMLDivElement>;
+      /** 滚动距离顶部位置 */
       scrollTop: number;
+      /** 滚动距离左侧位置 */
       scrollLeft: number;
       onSaveScrollPosition: (nodeInfo: RCKeepAlive.NodePosition) => void;
+      /** 开始过渡动画 */
+      onTransition: (t: TransitionActive) => void;
     } & KeepAliveRef;
 
   type KeepAliveRef = {
@@ -101,7 +117,9 @@ declare namespace RCKeepAlive {
 
   type NodePosition = {
     name: string;
+    /** 滚动距离顶部位置 */
     scrollTop: number;
+    /** 滚动距离左侧位置 */
     scrollLeft: number;
   };
 
@@ -116,10 +134,14 @@ declare namespace RCKeepAlive {
   type KeepAliveProviderProps = {
     children?: ReactNode;
     active?: boolean;
+    transition?: 'customer' | 'viewTransition';
+    transitionActive?: TransitionActive;
   } & KeepAliveRef;
 
   type KeepAliveContextProps = {
     active?: boolean;
+    transition?: 'customer' | 'viewTransition';
+    transitionActive?: TransitionActive;
   } & KeepAliveRef;
 
   type PageConfig = {
@@ -148,4 +170,8 @@ declare namespace RCKeepAlive {
   type StyleKeys = Exclude<keyof CSSStyleDeclaration, 'length' | 'parentRule'>;
 
   type KeepAliveOutletProps = Omit<KeepAliveProps, 'children' | 'activeName'>;
+
+  type TransitionOption = {
+    onlyEmitOnce?: boolean;
+  };
 }
