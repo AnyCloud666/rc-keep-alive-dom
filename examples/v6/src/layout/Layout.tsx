@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 
-// import { KeepAliveOutlet } from '../../../../src';
-import { KeepAliveOutlet } from 'rc-keep-alive-dom';
+import { KeepAliveOutlet } from '../../../../src';
+// import { KeepAliveOutlet } from 'rc-keep-alive-dom';
 
 const Layout = () => {
   return (
@@ -19,11 +19,12 @@ const Layout = () => {
         }}
         duration={500}
         wrapperChildrenStyle={{
-          height: '50vh',
+          height: '80vh',
           overflow: 'auto',
         }}
         recordScrollPosition={true}
         disableTransitions={['/']}
+        includeIframe={['/page2']}
       />
     </div>
   );

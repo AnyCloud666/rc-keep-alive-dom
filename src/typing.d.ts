@@ -15,7 +15,13 @@ declare namespace RCKeepAlive {
     include?: Array<string | RegExp> | string | RegExp;
     /** 排除缓存的路由名称 | 路径 */
     exclude?: Array<string | RegExp> | string | RegExp;
-    /** 子节点id 默认 keep-alive-container-child */
+    /**
+     * 子节点id 默认 keep-alive-container-child
+     *
+     * 0.0.5 版本之后不在支持该属性
+     *
+     * @deprecated
+     */
     wrapperChildrenId?: string;
     /** 子节点类名 默认 keep-alive-container-child */
     wrapperChildrenClassName?: string;
@@ -53,6 +59,10 @@ declare namespace RCKeepAlive {
      * 为什么不用 exclude 进行排除，exclude 作用只是排除不缓存的路由或组件
      */
     disableTransitions?: Array<string | RegExp> | string | RegExp;
+    /**
+     * 需要缓存 iframe 的路由名称 | 路径
+     */
+    includeIframe?: Array<string | RegExp> | string | RegExp;
   };
 
   type TransitionActive = {

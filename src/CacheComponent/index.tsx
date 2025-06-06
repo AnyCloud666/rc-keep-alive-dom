@@ -12,29 +12,54 @@ import { RCKeepAlive } from '../typing';
 import { delayAsync, isInclude } from '../utils';
 
 /**
- * 移除节点
+ * 隐藏节点
  *
  * @param {Element[]} nodes 节点列表
  * @param {string} cacheClassName 将列表中存在该类名的节点移除
  */
-function removeNodes(nodes: Element[], cacheClassName: string) {
+function hiddenNodes(
+  nodes: Element[],
+  cacheClassName: string,
+  isIframe: boolean,
+) {
   nodes?.forEach((node) => {
     if (node.classList.contains(cacheClassName)) {
-      node?.remove();
+      if (isIframe) {
+        (node as HTMLIFrameElement).style.display = 'none';
+      } else {
+        node?.remove();
+      }
     }
   });
 }
 
-async function renderCacheNodes(
+/**
+ * 显示节点
+ *
+ * @param container
+ * @param node
+ * @param enterActiveClassName
+ * @param enterFromClassName
+ * @param duration
+ * @param isCustomer
+ * @returns
+ */
+async function showNodes(
   container: HTMLDivElement | null,
   node: Element,
   enterActiveClassName: string,
   enterFromClassName: string,
   duration: number,
   isCustomer?: boolean,
+  isIframe?: boolean,
 ) {
   if (!container) return;
-  container.appendChild(node);
+
+  if (isIframe) {
+    (node as HTMLIFrameElement).style.display = 'block';
+  } else {
+    container.appendChild(node);
+  }
 
   if (!isCustomer) return;
 
@@ -122,6 +147,16 @@ function isDisabledTransition(
   return true;
 }
 
+function isIframe(
+  activeName: string,
+  includeIframe?: Array<string | RegExp> | string | RegExp,
+) {
+  if (includeIframe) {
+    return isInclude(includeIframe, activeName);
+  }
+  return false;
+}
+
 const CacheComponent = memo(
   (props: RCKeepAlive.CacheComponentProps) => {
     const {
@@ -135,7 +170,6 @@ const CacheComponent = memo(
       exclude,
       include,
       wrapperChildrenStyle = { height: '100%' },
-      wrapperChildrenId = KEEP_ALIVE_CONTAINER_CHILD_ID,
       wrapperChildrenClassName = KEEP_ALIVE_CONTAINER_CHILD_ID,
       enterFromClassName = KEEP_ENTER_FROM_CLASS_NAME,
       enterActiveClassName = KEEP_ENTER_ACTIVE_CLASS_NAME,
@@ -147,12 +181,13 @@ const CacheComponent = memo(
       onSaveScrollPosition,
       disableTransitions,
       onTransition,
+      includeIframe,
     } = props;
 
     // 渲染的目标元素
     const targetElement = useMemo(() => {
       const container = document.createElement('div');
-      container.setAttribute('id', wrapperChildrenId);
+      // container.setAttribute('id', wrapperChildrenId);
       container.setAttribute(KEEP_ALIVE_CONTAINER_CHILD_KEY, activeName);
       container.className = `${wrapperChildrenClassName} ${activeName}`;
       // 遍历样式对象并应用样式
@@ -174,6 +209,7 @@ const CacheComponent = memo(
     useEffect(() => {
       const cached = isCached(activeName, exclude, include);
       const disabled = isDisabledTransition(activeName, disableTransitions);
+      const iframe = isIframe(activeName, includeIframe);
       const renderDivCurrent = renderDiv.current;
       if (!renderDivCurrent) return;
 
@@ -198,20 +234,21 @@ const CacheComponent = memo(
           if (isCustomer && !disabled) {
             await delayAsync(duration - 40);
           }
-          removeNodes(activeNodes, wrapperChildrenClassName);
+          hiddenNodes(activeNodes, wrapperChildrenClassName, iframe);
           if (renderDiv.current?.contains(targetElement)) {
             return;
           }
           if (isCustomer && !disabled) {
             await delayAsync(16);
           }
-          renderCacheNodes(
+          showNodes(
             renderDiv.current,
             targetElement,
             enterActiveClassName,
             enterFromClassName,
             duration,
             isCustomer,
+            iframe,
           );
           if (isCustomer) {
             onTransition?.({
@@ -275,7 +312,7 @@ const CacheComponent = memo(
       pre.transition === next.transition &&
       pre.duration === next.duration &&
       pre.wrapperChildrenStyle === next.wrapperChildrenStyle &&
-      pre.wrapperChildrenId === next.wrapperChildrenId &&
+      // pre.wrapperChildrenId === next.wrapperChildrenId &&
       pre.wrapperChildrenClassName === next.wrapperChildrenClassName &&
       pre.enterFromClassName === next.enterFromClassName &&
       pre.enterActiveClassName === next.enterActiveClassName &&

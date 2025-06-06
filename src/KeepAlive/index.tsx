@@ -36,7 +36,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
     wrapperClassName = KEEP_ALIVE_CONTAINER_ID,
     wrapperStyle = { height: '100%' },
     wrapperChildrenClassName = KEEP_ALIVE_CONTAINER_CHILD_ID,
-    wrapperChildrenId = KEEP_ALIVE_CONTAINER_CHILD_ID,
+    // wrapperChildrenId = KEEP_ALIVE_CONTAINER_CHILD_ID,
     wrapperChildrenStyle = { height: '100%' },
     recordScrollPosition,
     disableTransitions,
@@ -238,7 +238,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
             leaveActiveClassName={leaveActiveClassName}
             leaveToClassName={leaveToClassName}
             wrapperChildrenStyle={wrapperChildrenStyle}
-            wrapperChildrenId={wrapperChildrenId}
+            // wrapperChildrenId={wrapperChildrenId}
             wrapperChildrenClassName={wrapperChildrenClassName}
             scrollTop={scrollTop}
             scrollLeft={scrollLeft}
