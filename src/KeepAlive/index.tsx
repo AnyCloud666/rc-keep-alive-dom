@@ -13,6 +13,7 @@ import KeepAliveProvider from '../Provider/KeepAliveProvider';
 import {
   KEEP_ALIVE_CONTAINER_CHILD_ID,
   KEEP_ALIVE_CONTAINER_ID,
+  KEEP_ALIVE_IFRAME,
 } from '../const';
 import type { RCKeepAlive } from '../typing';
 import { isNil, isNumber, isObject, safeStartTransition } from '../utils';
@@ -40,6 +41,8 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
     wrapperChildrenStyle = { height: '100%' },
     recordScrollPosition,
     disableTransitions,
+    includeIframe,
+    iframeClassName = KEEP_ALIVE_IFRAME,
   } = props;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,20 +60,33 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
           if (item.name === name) {
             return {
               ...item,
+              lastActiveTime: Date.now(),
+              refreshCount: (item.refreshCount || 0) + 1,
             };
           }
           return item;
         });
       });
     },
-    [activeName, children],
+    [activeName],
   );
 
   const destroy = useCallback(
     (cacheActiveName?: string | string[]) => {
       const names = cacheActiveName || activeName;
 
-      const cacheNames = Array.isArray(names) ? names : [names];
+      let cacheNames = Array.isArray(names) ? names : [names];
+
+      cacheNames = cacheNames.filter((name) => name !== activeName);
+
+      if (cacheNames.length === 0) {
+        if (cacheActiveName === activeName) {
+          console.warn('current node is active, not to destroy');
+        } else {
+          console.warn('no cache node to destroy');
+        }
+        return;
+      }
 
       setCacheNodes((cacheNodes) => {
         return cacheNodes.filter(({ name }) => !cacheNames.includes(name));
@@ -175,6 +191,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
               name: activeName,
               ele: children,
               lastActiveTime,
+              refreshCount: 0,
             },
           ];
         }
@@ -208,7 +225,7 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
         style={wrapperStyle}
       ></div>
 
-      {cacheNodes?.map(({ name, ele, scrollTop, scrollLeft }) => (
+      {cacheNodes?.map(({ name, ele, scrollTop, scrollLeft, refreshCount }) => (
         <KeepAliveProvider
           key={name}
           active={name === activeName}
@@ -246,6 +263,9 @@ const KeepAlive = memo((props: RCKeepAlive.KeepAliveProps) => {
             onSaveScrollPosition={onSaveScrollPosition}
             disableTransitions={disableTransitions}
             onTransition={onTransition}
+            includeIframe={includeIframe}
+            iframeClassName={iframeClassName}
+            refreshCount={refreshCount}
           >
             {ele}
           </CacheComponent>

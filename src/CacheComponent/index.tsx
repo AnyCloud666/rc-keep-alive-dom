@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import {
   KEEP_ALIVE_CONTAINER_CHILD_ID,
   KEEP_ALIVE_CONTAINER_CHILD_KEY,
+  KEEP_ALIVE_REFRESH_COUNT,
   KEEP_ENTER_ACTIVE_CLASS_NAME,
   KEEP_ENTER_FROM_CLASS_NAME,
   KEEP_LEAVE_ACTIVE_CLASS_NAME,
@@ -20,11 +21,11 @@ import { delayAsync, isInclude } from '../utils';
 function hiddenNodes(
   nodes: Element[],
   cacheClassName: string,
-  isIframe: boolean,
+  iframeClassName: string,
 ) {
   nodes?.forEach((node) => {
     if (node.classList.contains(cacheClassName)) {
-      if (isIframe) {
+      if (node.classList.contains(iframeClassName)) {
         (node as HTMLIFrameElement).style.display = 'none';
       } else {
         node?.remove();
@@ -56,7 +57,11 @@ async function showNodes(
   if (!container) return;
 
   if (isIframe) {
-    (node as HTMLIFrameElement).style.display = 'block';
+    if (container.contains(node)) {
+      (node as HTMLIFrameElement).style.display = 'block';
+    } else {
+      container.appendChild(node);
+    }
   } else {
     container.appendChild(node);
   }
@@ -105,9 +110,9 @@ function switchActiveNodeToInactive(
 
   const activeNodes = nodes.filter(
     (node) =>
-      node.getAttribute(KEEP_ALIVE_CONTAINER_CHILD_KEY) !== cacheActiveName,
+      node.getAttribute(KEEP_ALIVE_CONTAINER_CHILD_KEY) &&
+      (node as HTMLDivElement)?.style?.display !== 'none',
   );
-
   if (isCustomer) {
     activeNodes?.forEach(async (node) => {
       node?.classList.remove(leaveActiveClassName, leaveToClassName);
@@ -182,20 +187,26 @@ const CacheComponent = memo(
       disableTransitions,
       onTransition,
       includeIframe,
+      iframeClassName,
+      refreshCount,
     } = props;
 
     // 渲染的目标元素
     const targetElement = useMemo(() => {
       const container = document.createElement('div');
+      const iframe = isIframe(activeName, includeIframe);
       // container.setAttribute('id', wrapperChildrenId);
       container.setAttribute(KEEP_ALIVE_CONTAINER_CHILD_KEY, activeName);
-      container.className = `${wrapperChildrenClassName} ${activeName}`;
+      container.setAttribute(KEEP_ALIVE_REFRESH_COUNT, refreshCount.toString());
+      container.className = `${wrapperChildrenClassName} ${activeName} ${
+        iframe ? iframeClassName : ''
+      }`;
       // 遍历样式对象并应用样式
       for (const [key, value] of Object.entries(wrapperChildrenStyle)) {
         container.style[key as RCKeepAlive.StyleKeys] = value;
       }
       return container;
-    }, []);
+    }, [refreshCount, iframeClassName, wrapperChildrenClassName, activeName]);
 
     /** 是否激活 */
     const activatedRef = useRef(false);
@@ -234,8 +245,8 @@ const CacheComponent = memo(
           if (isCustomer && !disabled) {
             await delayAsync(duration - 40);
           }
-          hiddenNodes(activeNodes, wrapperChildrenClassName, iframe);
-          if (renderDiv.current?.contains(targetElement)) {
+          hiddenNodes(activeNodes, wrapperChildrenClassName, iframeClassName!);
+          if (renderDiv.current?.contains(targetElement) && !iframe) {
             return;
           }
           if (isCustomer && !disabled) {
@@ -250,6 +261,7 @@ const CacheComponent = memo(
             isCustomer,
             iframe,
           );
+
           if (isCustomer) {
             onTransition?.({
               name: activeName,
@@ -257,6 +269,7 @@ const CacheComponent = memo(
               time: Date.now(),
             });
           }
+
           if (recordScrollPosition) {
             await delayAsync(duration - 40);
             targetElement?.scrollTo({
@@ -278,7 +291,6 @@ const CacheComponent = memo(
         } else if (transition === 'customer') {
           change(true);
         } else {
-          console.log('no transition');
           change();
         }
       } else {
@@ -293,34 +305,24 @@ const CacheComponent = memo(
           });
         }
       }
-    }, [active, renderDiv, activeName, exclude, include]);
+    }, [active, renderDiv, activeName, exclude, include, refreshCount]);
 
     return (
       <Fragment>
-        {activatedRef.current && createPortal(children, targetElement)}
+        {activatedRef.current
+          ? createPortal(children, targetElement, activeName)
+          : null}
       </Fragment>
     );
   },
   (pre, next) => {
     // true 跳过渲染
     return (
-      pre.activeName === next.activeName &&
       pre.active === next.active &&
       pre.children === next.children &&
       pre.exclude === next.exclude &&
       pre.include === next.include &&
-      pre.transition === next.transition &&
-      pre.duration === next.duration &&
-      pre.wrapperChildrenStyle === next.wrapperChildrenStyle &&
-      // pre.wrapperChildrenId === next.wrapperChildrenId &&
-      pre.wrapperChildrenClassName === next.wrapperChildrenClassName &&
-      pre.enterFromClassName === next.enterFromClassName &&
-      pre.enterActiveClassName === next.enterActiveClassName &&
-      pre.leaveToClassName === next.leaveToClassName &&
-      pre.leaveActiveClassName === next.leaveActiveClassName &&
-      pre.scrollTop === next.scrollTop &&
-      pre.scrollLeft === next.scrollLeft &&
-      pre.onSaveScrollPosition === next.onSaveScrollPosition
+      pre.refreshCount === next.refreshCount
     );
   },
 );

@@ -63,6 +63,8 @@ declare namespace RCKeepAlive {
      * 需要缓存 iframe 的路由名称 | 路径
      */
     includeIframe?: Array<string | RegExp> | string | RegExp;
+    /** 当includeIframe 存在时，会给子容器节点加上该类名 */
+    iframeClassName?: string;
   };
 
   type TransitionActive = {
@@ -90,6 +92,8 @@ declare namespace RCKeepAlive {
       onSaveScrollPosition: (nodeInfo: RCKeepAlive.NodePosition) => void;
       /** 开始过渡动画 */
       onTransition: (t: TransitionActive) => void;
+      lastActiveTime?: number;
+      refreshCount: number;
     } & KeepAliveRef;
 
   type KeepAliveRef = {
@@ -138,6 +142,7 @@ declare namespace RCKeepAlive {
       unknown,
       string | React.JSXElementConstructor<any>
     > | null;
+    refreshCount: number;
     lastActiveTime: number;
   };
 

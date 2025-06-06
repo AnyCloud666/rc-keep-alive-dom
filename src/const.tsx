@@ -4,6 +4,11 @@ export const KEEP_ALIVE_CONTAINER_ID = 'keep-alive-container';
 export const KEEP_ALIVE_CONTAINER_CHILD_ID = 'keep-alive-container-child';
 /** 缓存属性 key */
 export const KEEP_ALIVE_CONTAINER_CHILD_KEY = 'data-keepalive-id';
+
+export const KEEP_ALIVE_REFRESH_COUNT = 'data-keepalive-refresh-count';
+
+export const KEEP_ALIVE_IFRAME = 'keep-alive-iframe';
+
 /** session 缓存页面 key */
 export const KEEP_PAGE_STORAGE_KEY = 'keep-page-storage-key';
 
