@@ -154,8 +154,12 @@ function isDisabledTransition(
 
 function isIframe(
   activeName: string,
+  exclude?: Array<string | RegExp> | string | RegExp,
   includeIframe?: Array<string | RegExp> | string | RegExp,
 ) {
+  if (exclude) {
+    return !isInclude(exclude, activeName);
+  }
   if (includeIframe) {
     return isInclude(includeIframe, activeName);
   }
@@ -194,7 +198,7 @@ const CacheComponent = memo(
     // 渲染的目标元素
     const targetElement = useMemo(() => {
       const container = document.createElement('div');
-      const iframe = isIframe(activeName, includeIframe);
+      const iframe = isIframe(activeName, exclude, includeIframe);
       // container.setAttribute('id', wrapperChildrenId);
       container.setAttribute(KEEP_ALIVE_CONTAINER_CHILD_KEY, activeName);
       container.setAttribute(KEEP_ALIVE_REFRESH_COUNT, refreshCount.toString());
@@ -220,7 +224,7 @@ const CacheComponent = memo(
     useEffect(() => {
       const cached = isCached(activeName, exclude, include);
       const disabled = isDisabledTransition(activeName, disableTransitions);
-      const iframe = isIframe(activeName, includeIframe);
+      const iframe = isIframe(activeName, exclude, includeIframe);
       const renderDivCurrent = renderDiv.current;
       if (!renderDivCurrent) return;
 
@@ -269,9 +273,7 @@ const CacheComponent = memo(
               time: Date.now(),
             });
           }
-
           if (recordScrollPosition) {
-            await delayAsync(duration - 40);
             targetElement?.scrollTo({
               top: scrollTop,
               left: scrollLeft,
