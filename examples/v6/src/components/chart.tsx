@@ -8,8 +8,8 @@ import {
   useRef,
   type CSSProperties,
 } from 'react';
-// import { useActivated, useTransition, useUnActivated } from '../../../../src';
-import { useActivated, useTransition, useUnActivated } from 'rc-keep-alive-dom';
+import { useActivated, useTransition, useUnActivated } from '../../../../src';
+// import { useActivated, useTransition, useUnActivated } from 'rc-keep-alive-dom';
 
 const Chart = forwardRef(
   (
@@ -42,8 +42,6 @@ const Chart = forwardRef(
     }, [option, mergeOption]);
 
     const onResize = useCallback(() => {
-      console.log('resize');
-
       chart.current?.resize();
     }, []);
 
@@ -52,17 +50,22 @@ const Chart = forwardRef(
       return () => {
         window.removeEventListener('resize', onResize);
         chart.current?.dispose();
+        chart.current = undefined;
       };
     }, [drawChart, onResize]);
 
     useTransition(
       (t) => {
-        console.log('t: ', t);
         if (t?.type === 'end') {
+          console.log(
+            'resize========================',
+            chartRef.current?.clientHeight,
+            chartRef.current?.clientWidth,
+          );
           drawChart();
         }
       },
-      // { onlyEmitOnce: true },
+      { onlyEmitOnce: true },
     );
 
     useActivated(() => {
@@ -86,14 +89,32 @@ const Chart = forwardRef(
     );
 
     return (
-      <div
-        ref={chartRef}
-        style={{
-          width: '100%',
-          height: '100%',
-          ...style,
-        }}
-      ></div>
+      <>
+        <button
+          type="button"
+          onClick={() => {
+            chart.current?.dispose();
+          }}
+        >
+          销毁图表
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            drawChart();
+          }}
+        >
+          重写绘制图表
+        </button>
+        <div
+          ref={chartRef}
+          style={{
+            width: '100%',
+            height: '100%',
+            ...style,
+          }}
+        ></div>
+      </>
     );
   },
 );

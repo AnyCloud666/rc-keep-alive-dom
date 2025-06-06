@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useMemo, useState } from 'react';
 
-import { useActivated, useUnActivated } from 'rc-keep-alive-dom';
+// import { useActivated, useUnActivated } from 'rc-keep-alive-dom';
+import { useActivated, useUnActivated } from '../../../../src';
 import Chart from '../components/chart';
 // import './App.css'
 
@@ -12,11 +13,11 @@ function App() {
   }, []);
 
   useActivated(() => {
-    console.log('activated');
+    console.log('activated----------------------');
   });
 
   useUnActivated(() => {
-    console.log('unactivated');
+    console.log('unactivated-----------------------');
   });
 
   const option = useMemo<echarts.EChartsOption>(() => {
@@ -50,6 +51,7 @@ function App() {
         <div style={{ width: 500, height: 300, border: '1px solid #ccc' }}>
           <Chart
             option={option}
+            mergeOption={true}
             // style={{ width: 'fit-content', height: 'fit-content' }}
           />
         </div>
