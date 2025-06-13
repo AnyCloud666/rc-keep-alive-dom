@@ -149,7 +149,7 @@ function isDisabledTransition(
   if (disabledTransition) {
     return isInclude(disabledTransition, activeName);
   }
-  return true;
+  return false;
 }
 
 function isIframe(
@@ -247,7 +247,7 @@ const CacheComponent = memo(
           );
           // 延迟移除节点
           if (isCustomer && !disabled) {
-            await delayAsync(duration - 40);
+            await delayAsync(duration);
           }
           hiddenNodes(activeNodes, wrapperChildrenClassName, iframeClassName!);
           if (renderDiv.current?.contains(targetElement) && !iframe) {
